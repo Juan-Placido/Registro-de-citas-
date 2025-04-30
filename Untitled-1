@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Citas Odontológicas</title>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4228/4228443.png" type="image/png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #e6f0fa;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #1976d2;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+        main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+        }
+        form {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #1976d2;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 0.7rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #b0bec5;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #1976d2;
+            color: white;
+            padding: 0.7rem;
+            width: 100%;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1565c0;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.8rem;
+            color: #607d8b;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Clínica Dental - Registro de Citas</h1>
+</header>
+
+<main>
+    <form id="appointmentForm" novalidate>
+        <label for="nombre">Nombre Completo</label>
+        <input type="text" id="nombre" name="nombre" required maxlength="100">
+
+        <label for="correo">Correo Electrónico</label>
+        <input type="email" id="correo" name="correo" required maxlength="100">
+
+        <label for="telefono">Teléfono</label>
+        <input type="tel" id="telefono" name="telefono" required pattern="[0-9]{10}" title="Ingresa un número de 10 dígitos">
+
+        <label for="fecha">Fecha de la Cita</label>
+        <input type="date" id="fecha" name="fecha" required>
+
+        <label for="motivo">Motivo de la Cita</label>
+        <textarea id="motivo" name="motivo" rows="3" required maxlength="500"></textarea>
+
+        <button type="submit">Registrar Cita</button>
+    </form>
+</main>
+
+<footer>
+    &copy; 2025 Clínica Dental. Todos los derechos reservados.
+</footer>
+
+<!-- Conexión a Firebase y envío de datos -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDo4EtpDVn1UFM1QnpSXmULPMbl7NC1Ycs",
+        authDomain: "e1459-bd2cd.firebaseapp.com",
+        projectId: "e1459-bd2cd",
+        storageBucket: "e1459-bd2cd.firebasestorage.app",
+        messagingSenderId: "1013411532259",
+        appId: "1:1013411532259:web:2bec4f5648e32aa07424d6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const form = document.getElementById('appointmentForm');
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById("fecha").setAttribute('min', today);
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const nombre = form.nombre.value.trim();
+        const correo = form.correo.value.trim();
+        const telefono = form.telefono.value.trim();
+        const fecha = form.fecha.value;
+        const motivo = form.motivo.value.trim();
+
+        if (!nombre || !correo || !telefono || !fecha || !motivo) {
+            alert("Por favor, completa todos los campos.");
+            return;
+        }
+
+        try {
+            await addDoc(collection(db, "citas"), {
+                nombre,
+                correo,
+                telefono,
+                fecha,
+                motivo,
+                timestamp: new Date()
+            });
+            alert("\u00a1Cita registrada exitosamente!");
+            form.reset();
+        } catch (error) {
+            console.error("Error al registrar la cita: ", error);
+            alert("Hubo un error al registrar la cita. Int\u00e9ntalo nuevamente.");
+        }
+    });
+</script>
+
+</body>
+</html>
